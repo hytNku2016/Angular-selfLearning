@@ -4,3 +4,6 @@
 **请查看的时候，帮忙点下star 激励下**
 
 参考文件主要来自官方文档。
+
+## Angular2 知识图谱 ##
+![](https://github.com/TeamStuQ/skill-map/blob/master/data/designbyStuQ/png-Angular2-by-StuQ.png)
