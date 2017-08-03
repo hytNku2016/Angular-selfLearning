@@ -22,4 +22,4 @@ dependencies区下有三类包：
 - **填充(Polyfills)**-- 填充包弥合了不同浏览器上的JavaScript实现方面的差异。
 - **其它**-- 其它库对本应用提供支持，比如bootstrap包提供了HTML中的小部件和样式。
 
-![](imgs/dependencies.png)
+![](https://github.com/hytNku2016/Angular-selfLearning/blob/master/imgs/dependencies.PNG)
