@@ -27,7 +27,9 @@ a标签上的RouterLink指令让路由器得以控制这个a元素。 这里的�
 
 每个a标签上的RouterLinkActive指令可以帮用户在外观上区分出当前选中的“活动”路由。 当与它关联的RouterLink被激活时，路由器会把CSS类active添加到这个元素上。 我们可以把该指令添加到a元素或它的父元素上。
 
-一个模板中只能有一个未命名的<router-outlet>
+使用了[routerLinkActiveOptions]='{ exact: true }'，那么只有在其URL与当前URL精确匹配时才会激活指定的RouterLink
+
+**一个模板中只能有一个未命名的<router-outlet>**
 
 	
 ## 重定向路由 ##
@@ -88,4 +90,101 @@ pathMatch还可以制定为prefix；
 ngOnInit对每个实例只调用一次。 我们需要一种方式来检测在同一个实例中路由参数什么时候发生了变化。 而params属性这个可观察对象（Observable）干净漂亮的处理了这种情况。
 
 **当在组件中订阅一个可观察对象时，我们通常总是要在组件销毁时取消这个订阅。**ActivateRoute中的各种可观察对象就是属于少数例外情况不需要取消订阅。
+
+## 子路由配置 ##
+
+路由的子路由使用children来指定：
+	
+	const crisisCenterRoutes: Routes = [
+	  {
+	    path: 'crisis-center',
+	    component: CrisisCenterComponent,
+		//指定一级子路由
+	    children: [
+	      {
+	        path: '',
+	        component: CrisisListComponent,
+			//指定二级子路由
+	        children: [
+	          {
+	            path: ':id',
+				//Crisis Detail路由是Crisis List的子路由,当我们选择了另一个危机时，CrisisDetailComponent会被复用(这样会减小开支）。
+	            component: CrisisDetailComponent
+	          },
+	          {
+	            path: '',
+	            component: CrisisCenterHomeComponent
+	          }
+	        ]
+	      }
+	    ]
+	  }
+	];
+	
+	@NgModule({
+	  imports: [
+		// 特性路由配置必须使用RouterModule.forChild()
+	    RouterModule.forChild(crisisCenterRoutes)
+	  ],
+	  exports: [
+	    RouterModule
+	  ]
+	})
+	export class CrisisCenterRoutingModule { }
+
+
+
+## 第二路由 ##
+
+定义命名出口：
+
+	<router-outlet></router-outlet>
+	<!--定义命名出口-->
+	<router-outlet name="popup"></router-outlet>
+
+导航到第二路由
+
+	<a [routerLink]="[{ outlets: { popup: ['compose'] } }]">Contact</a>
+	//在命令API中
+	this.router.navigate([{ outlets: { popup: 'compose' }}]);
+
+每个第二出口都有自己独立的导航，跟主出口的导航彼此独立。 修改主出口中的当前路由并不会影响到popup出口中的。 
+
+**清楚第二路由**
+
+	//把popup这个RouterOutlet设置为null会清除该出口，并且从当前URL中移除第二路由popup。	
+	this.router.navigate([{ outlets: { popup: null }}]);
+
+## 守卫路由 ##
+
+用户不能在任何时候导航到任何地方，路由的导航需要做一些限定，比如：
+
+- 该用户可能无权导航到目标组件。
+- 可能用户得先登录（认证）。
+- 在显示目标组件前，我们可能得先获取某些数据。
+- 在离开组件前，我们可能要先保存修改。
+- 我们可能要询问用户：你是否要放弃本次更改，而不用保存它们
+
+因此，需要为路由添加守卫。
+
+守卫返回一个值，以控制路由器的行为：
+
+1. 如果它返回true，导航过程会继续
+1. 如果它返回false，导航过程会终止，且用户会留在原地。
+1. 守卫还可以告诉路由器导航到别处，这样也取消当前的导航。
+
+**路由守卫可以以同步的方式返回一个布尔值，更多时候是返回一个Observable<boolean>或Promise<boolean>，并且路由器会等待这个可观察对象被解析为true或false**
+
+
+路由器支持多种守卫：
+
+- 用CanActivate来处理导航到某路由的情况。
+- 用CanActivateChild处理导航到子路由的情况。
+- 用CanDeactivate来处理从当前路由离开的情况。
+- 用Resolve在路由激活之前获取路由数据。
+- 用CanLoad来处理异步导航到某特性模块的情况。
+
+TODO :案例编写
+
+
 
